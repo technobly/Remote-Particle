@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Remote Spark</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <script type="text/javascript" src="http://codeorigin.jquery.com/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        var statusTimer = null;
+        var timer1, timer2, timer3, timer4;
+        var baseURL = "https://api.spark.io/v1/devices/";
+        
+        //--------------------------------------------------------------
+        // START - EDITABLE USER DATA
+        //
+        var accessToken = "0123456789012345678901234567890123456789";
+        var coreID = "012345678901234567890123";
+        // App Heading
+        var appHeading = "Remote Spark";
+        // Function 1
+        var funcKey1 = "start";
+        var args1 = "";
+        var label1 = "Start Engine"; // button label 1 (set to "" to disable)
+        // Function 2
+        var funcKey2 = "trunk";
+        var args2 = "";
+        var label2 = "Pop Trunk"; // button label 2 (set to "" to disable)
+        // Function 3
+        var funcKey3 = "lock";
+        var args3 = "";
+        var label3 = "Lock Doors"; // button label 3 (set to "" to disable)
+        // Function 4
+        var funcKey4 = "unlock";
+        var args4 = "";
+        var label4 = "Unlock Doors"; // button label 4 (set to "" to disable)
+        // Variable 1
+        var varKey1 = "startstate";
+        var var1onLabel = "Running!";
+        var var1offLabel = "Stopped.";
+        var var1onState = 1; // Set to null to allow raw value to be displayed.
+        var var1offState = 0; // Set to null to allow raw value to be displayed.
+        var refresh1 = 5000; // variable 1 refresh rate in milliseconds (set to 0 to disable)
+        // Variable 2
+        var varKey2 = "trunkstate";
+        var var2onLabel = "Open!";
+        var var2offLabel = "Closed.";
+        var var2onState = 1; // Set to null to allow raw value to be displayed.
+        var var2offState = 0; // Set to null to allow raw value to be displayed.
+        var refresh2 = 5000; // variable 2 refresh rate in milliseconds (set to 0 to disable)
+        // Variable 3
+        var varKey3 = "lockstate";
+        var var3onLabel = "Locked.";
+        var var3offLabel = "Unlocked!";
+        var var3onState = 1; // Set to null to allow raw value to be displayed.
+        var var3offState = 0; // Set to null to allow raw value to be displayed.
+        var refresh3 = 5000; // variable 3 refresh rate in milliseconds (set to 0 to disable)
+        // Variable 4
+        var varKey4 = "";
+        var var4onLabel = "";
+        var var4offLabel = "";
+        var var4onState = null; // Set to null to allow raw value to be displayed.
+        var var4offState = null; // Set to null to allow raw value to be displayed.
+        var refresh4 = 0; // variable 4 refresh rate in milliseconds (set to 0 to disable)
+        //
+        // END - EDITABLE USER DATA
+        //--------------------------------------------------------------
+
+        // Update app heading
+        $("#app-heading").html(appHeading);
+
+        // Override button styles
+        $(".btn-lg").css({"width":"60%"});
+
+        // Update button labels to code definitions
+        // or hide them if not defined.
+        (label1) ? $("#button-1").html(label1) : $("#button-1").hide();
+        (label2) ? $("#button-2").html(label2) : $("#button-2").hide();
+        (label3) ? $("#button-3").html(label3) : $("#button-3").hide();
+        (label4) ? $("#button-4").html(label4) : $("#button-4").hide();
+
+        // Override text input styles
+        $(".form-control").css({"display":"inline","width":"35%"});
+
+        // Hide variable text fields if not in use.
+        if(refresh1 === 0) $("#var-val-1").hide();
+        if(refresh2 === 0) $("#var-val-2").hide();
+        if(refresh3 === 0) $("#var-val-3").hide();
+        if(refresh4 === 0) $("#var-val-4").hide();
+
+        // Auto-refresh
+        // Turn on/off the variable refresh if refresh rates are defined
+        if(refresh1) {
+          $("#get-var-1").attr("disabled", "disabled");
+          timer1 = setInterval(function () {
+            getVariable1();
+          }, refresh1);
+        }
+        if(refresh2) {
+          $("#get-var-2").attr("disabled", "disabled");
+          timer2 = setInterval(function () {
+            getVariable2();
+          }, refresh2);
+        }
+        if(refresh3) {
+          $("#get-var-3").attr("disabled", "disabled");
+          timer3 = setInterval(function () {
+            getVariable3();
+          }, refresh3);
+        }
+        if(refresh4) {
+          $("#get-var-4").attr("disabled", "disabled");
+          timer4 = setInterval(function () {
+            getVariable4();
+          }, refresh4);
+        }    
+
+        ////
+        // Alerts
+        ////
+        $("#info-alert").alert();
+        $("#info-alert").affix();
+
+        ////
+        // Methods
+        ////
+        function onMethodSuccess() {
+          alert = $("#info-alert");
+          alert.text("Success!").removeClass("alert-danger").addClass("alert-success");
+          if(statusTimer != null) {
+            clearTimeout(statusTimer);
+            alert.hide();
+            setTimeout(function() {
+              alert.show();
+              statusTimer = setTimeout(function() {
+                statusTimer = null;
+                alert.hide();
+              }, 1750);
+            }, 250);
+          }
+          else {
+            alert.show();
+            statusTimer = setTimeout(function() {
+              statusTimer = null;
+              alert.hide();
+            }, 2000);
+          }
+        }
+
+        function onMethodFailure(data) {
+          alert = $("#info-alert");
+          alert.text((data)?"Error! "+data:"Error!").removeClass("alert-success").addClass("alert-danger");
+          if(statusTimer != null) {
+            clearTimeout(statusTimer);
+            alert.hide();
+            setTimeout(function() {
+              alert.show();
+              statusTimer = setTimeout(function() {
+                statusTimer = null;
+                alert.hide();
+              }, 1750);
+            }, 250);
+          }
+          else {
+            alert.show();
+            statusTimer = setTimeout(function() {
+              statusTimer = null;
+              alert.hide();
+            }, 2000);
+          }
+        }
+
+        // The base level run method command
+        function doMethod(method, data) {
+          var url = baseURL + coreID + "/" + method;
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: {
+              access_token: accessToken,
+              args: data
+            },
+            dataType: "json"
+          }).success(function(obj) {
+            console.log(obj);
+            (obj.return_value && obj.return_value == 200) ? onMethodSuccess() : onMethodFailure((obj.error)?obj.error:"");
+          }).fail(function(obj) {
+            onMethodFailure();
+          });
+        }
+
+        $("#button-1").on("click", function () {
+          doMethod(funcKey1, args1);
+        });
+        $("#button-2").on("click", function () {
+          doMethod(funcKey2, args2);
+        });
+        $("#button-3").on("click", function () {
+          doMethod(funcKey3, args3);
+        });
+        $("#button-4").on("click", function () {
+          doMethod(funcKey4, args4);
+        });
+
+        ////
+        // Variables
+        ////
+        function getVariable(variable, callback) {
+          var url = baseURL + coreID + "/" + variable + "?access_token=" + accessToken;
+          $.ajax({
+            url: url,
+            dataType: "json"
+          }).success(function(obj) {
+            console.log(obj);
+            (obj.coreInfo.deviceID && obj.coreInfo.deviceID == coreID) ? onMethodSuccess() : onMethodFailure((obj.error)?obj.error:"");
+            callback(obj.TEMPORARY_allTypes.number);
+          }).fail(function(obj) {
+            onMethodFailure();
+          });
+        }
+
+        // Get variable methods
+        function getVariable1() {
+          getVariable(varKey1, function (res) {
+            if(res === var1onState)
+              $("#var-val-1").val(var1onLabel);
+            else if(res === var1offState)
+              $("#var-val-1").val(var1offLabel);
+            else
+              $("#var-val-1").val(res);
+          });
+        }
+        function getVariable2() {
+          getVariable(varKey2, function (res) {
+            if(res === var2onState)
+              $("#var-val-2").val(var2onLabel);
+            else if(res === var2offState)
+              $("#var-val-2").val(var2offLabel);
+            else
+              $("#var-val-2").val(res);
+          });
+        }
+        function getVariable3() {
+          getVariable(varKey3, function (res) {
+            if(res === var3onState)
+              $("#var-val-3").val(var3onLabel);
+            else if(res === var3offState)
+              $("#var-val-3").val(var3offLabel);
+            else
+              $("#var-val-3").val(res);
+          });
+        }
+        function getVariable4() {
+          getVariable(varKey4, function (res) {
+            if(res === var4onState)
+              $("#var-val-4").val(var4onLabel);
+            else if(res === var4offState)
+              $("#var-val-4").val(var4offLabel);
+            else
+              $("#var-val-4").val(res);
+          });
+        }
+
+      });
+    </script> 
+
+    <div class="container">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h4 class="panel-title" id="app-heading">
+            Control
+          </h4>
+        </div>
+        <div id="buttons" class="panel">
+          <div class="panel-body">
+            <button type="button" class="btn btn-primary btn-lg" id="button-1">BUTTON 1</button>
+            <input type="text" class="form-control" value="---" readonly id="var-val-1"><br/><br/>
+            <button type="button" class="btn btn-primary btn-lg" id="button-2">BUTTON 2</button>
+            <input type="text" class="form-control" value="---" readonly id="var-val-2"><br/><br/>
+            <button type="button" class="btn btn-primary btn-lg" id="button-3">BUTTON 3</button>
+            <input type="text" class="form-control" value="---" readonly id="var-val-3"><br/><br/>
+            <button type="button" class="btn btn-primary btn-lg" id="button-4">BUTTON 4</button>
+            <input type="text" class="form-control" value="---" readonly id="var-val-4">
+          </div>
+        </div>
+      </div>
+      <div class="alert fade in" id="info-alert" hidden data-spy="affix"></div>
+    </div>
+           
+  </body>
+</html>
