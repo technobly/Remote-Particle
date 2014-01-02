@@ -7,7 +7,7 @@ A Remote Starter example that's a customize-able simple Spark Core web app contr
 
 1. Edit the index.html file and enter your ``coreID`` and ``accessToken`` in the user editable data area.
 
-2. Create a new app on https://www.spark.io/build and call it "RemoteSpark".  Copy/Paste the contents of the RemoteSpark.ino file over your new app.  Save it and Flash it to your Core.
+2. Create a new app on https://www.spark.io/build and call it "RemoteSpark".  Copy/Paste the contents of the RemoteSpark.cpp file over your new app.  Save it and Flash it to your Core.
 
 3. Open the index.html in your browser or upload all files to your website at a secret URL and start controlling your Spark Core!
 
@@ -31,6 +31,10 @@ NOTES: When you press Start Engine, notice the onboard blue LED tied to output D
 NOTES: You will see the "SUCCESS!" message pop up every time you press a button or your variables update.  It will say success on button presses only if it actually gets a return value of 200 from your function.  It will say success on variable updates if your coreID matches the one you enter in the webpage (currently variables don't return anything but their own value).  If you Core goes offline and you press a button, you'll see an ERROR! Timed Out message.  This success/error message popup could easily change to something else in the future.  Study the working example before you start editing it to your liking!"
 
 NOTES ON REMOTESPARK.INO: This example was specifically designed for a buddy of mine who has a four button remote starter keyfob hooked up to his Spark Core.  The four digital outputs control four tiny reed relays that are wired up to the four buttons of a doner keyfob.  The Start Engine button requires two presses to start the engine, and one press thereafter to stop it.  If started, the car will run for 15 minutes and then turn off to conserve gas.  The example program will update the startState variable based on these conditions.  If the trunk is remotely popped, the trunkState variable helps to alert the user that the trunk is open which will need to be manually closed. To reset the trunkState back to off, just press the trunkPop button again.  The code is smart enough to track the trunkState and not open the trunk again when you are resetting the state.  Lock and Unlock are separate buttons, but there is just one state to keep track of.  In the future, the concept of time will be added by polling an NTP server or using the internal Real Time Clock to automatically start the engine at a certain time every morning.
+
+For two other trimmed down versions without variables, check these out:
+https://github.com/technobly/Simple-Spark-Core-Controller
+https://github.com/technobly/Remote-RTTTL
 
 ![iPhone5s](http://i.imgur.com/9AAP4Mx.png)
 
