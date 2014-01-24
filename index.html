@@ -226,7 +226,7 @@
           }).success(function(obj) {
             console.log(obj);
             (obj.coreInfo.deviceID && obj.coreInfo.deviceID == coreID) ? onMethodSuccess() : onMethodFailure((obj.error)?obj.error:"");
-            callback(obj.TEMPORARY_allTypes.number);
+            callback(obj.result);
           }).fail(function(obj) {
             onMethodFailure();
           });
