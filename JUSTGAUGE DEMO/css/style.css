@@ -1,0 +1,34 @@
+.container {
+  margin-top: 20px;
+}
+
+.input-group {
+  margin-top:15px;
+}
+
+.alert {
+  z-index: 1000;
+}
+
+.affix {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+ .affix {
+    width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+ .affix {
+    width: 940px;
+  }
+}
+
+@media (min-width: 1200px) {
+ .affix {
+    width: 1140px;
+  }
+}
+
