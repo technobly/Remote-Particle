@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Remote Spark</title>
+    <title>Remote Particle</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -22,23 +22,23 @@
       $(document).ready(function() {
         var statusTimer = null;
         var timer1, timer2, timer3, timer4;
-        var baseURL = "https://api.spark.io/v1/devices/";
-        
+        var baseURL = "https://api.particle.io/v1/devices/";
+
         //--------------------------------------------------------------
         // START - EDITABLE USER DATA
         //
-        var accessToken = "0123456789012345678901234567890123456789";
-        var coreID = "012345678901234567890123";
+        var accessToken = "2345234523452345234523452345234523452345";
+        var deviceID = "123412341234123412341234";
         // App Heading
-        var appHeading = "Remote Spark";
+        var appHeading = "Remote Particle";
         // Function 1
         var funcKey1 = "start";
         var args1 = "";
-        var label1 = "Start Engine"; // button label 1 (set to "" to disable)
+        var label1 = "Start/Stop Engine"; // button label 1 (set to "" to disable)
         // Function 2
         var funcKey2 = "trunk";
         var args2 = "";
-        var label2 = "Pop Trunk"; // button label 2 (set to "" to disable)
+        var label2 = "Open/Close Trunk"; // button label 2 (set to "" to disable)
         // Function 3
         var funcKey3 = "lock";
         var args3 = "";
@@ -126,7 +126,7 @@
           timer4 = setInterval(function () {
             getVariable4();
           }, refresh4);
-        }    
+        }
 
         ////
         // Alerts
@@ -185,7 +185,7 @@
 
         // The base level run method command
         function doMethod(method, data) {
-          var url = baseURL + coreID + "/" + method;
+          var url = baseURL + deviceID + "/" + method;
           $.ajax({
             type: "POST",
             url: url,
@@ -219,13 +219,13 @@
         // Variables
         ////
         function getVariable(variable, callback) {
-          var url = baseURL + coreID + "/" + variable + "?access_token=" + accessToken;
+          var url = baseURL + deviceID + "/" + variable + "?access_token=" + accessToken;
           $.ajax({
             url: url,
             dataType: "json"
           }).success(function(obj) {
             console.log(obj);
-            (obj.coreInfo.deviceID && obj.coreInfo.deviceID == coreID) ? onMethodSuccess() : onMethodFailure((obj.error)?obj.error:"");
+            (obj.coreInfo.deviceID && obj.coreInfo.deviceID == deviceID) ? onMethodSuccess() : onMethodFailure((obj.error)?obj.error:"");
             callback(obj.result);
           }).fail(function(obj) {
             onMethodFailure();
@@ -275,7 +275,7 @@
         }
 
       });
-    </script> 
+    </script>
 
     <div class="container">
       <div class="panel panel-primary">
@@ -299,6 +299,6 @@
       </div>
       <div class="alert fade in" id="info-alert" hidden data-spy="affix"></div>
     </div>
-           
+
   </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Remote Spark justGauge Demo</title>
+    <title>Remote Particle justGauge Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -25,15 +25,15 @@
         var statusTimer = null;
         var timer1, timer2, timer3, timer4;
         var g1, g2, g3, g4;
-        var baseURL = "https://api.spark.io/v1/devices/";
-        
+        var baseURL = "https://api.particle.io/v1/devices/";
+
         //--------------------------------------------------------------
         // START - EDITABLE USER DATA
         //
-        var accessToken = "0123456789012345678901234567890123456789";
-        var coreID = "012345678901234567890123";
+        var accessToken = "2345234523452345234523452345234523452345";
+        var deviceID = "123412341234123412341234";
         // App Heading
-        var appHeading = "Remote Spark justGauge Demo";
+        var appHeading = "Remote Particle justGauge Demo";
         // Function 1
         var funcKey1 = "start";
         var args1 = "";
@@ -129,7 +129,7 @@
           timer4 = setInterval(function () {
             getVariable4();
           }, refresh4);
-        }    
+        }
 
         ////
         // Alerts
@@ -188,7 +188,7 @@
 
         // The base level run method command
         function doMethod(method, data) {
-          var url = baseURL + coreID + "/" + method;
+          var url = baseURL + deviceID + "/" + method;
           $.ajax({
             type: "POST",
             url: url,
@@ -222,13 +222,13 @@
         // Variables
         ////
         function getVariable(variable, callback) {
-          var url = baseURL + coreID + "/" + variable + "?access_token=" + accessToken;
+          var url = baseURL + deviceID + "/" + variable + "?access_token=" + accessToken;
           $.ajax({
             url: url,
             dataType: "json"
           }).success(function(obj) {
             console.log(obj);
-            (obj.coreInfo.deviceID && obj.coreInfo.deviceID == coreID) ? onMethodSuccess() : onMethodFailure((obj.error)?obj.error:"");
+            (obj.coreInfo.deviceID && obj.coreInfo.deviceID == deviceID) ? onMethodSuccess() : onMethodFailure((obj.error)?obj.error:"");
             callback(obj.result);
           }).fail(function(obj) {
             onMethodFailure();
@@ -273,8 +273,8 @@
         }
 
         var g4 = new JustGage({
-          id: "g4", 
-          value: 0, 
+          id: "g4",
+          value: 0,
           min: 0,
           max: 2047,
           title: var4onLabel,
@@ -286,13 +286,13 @@
           "#0000ff",     // blue, yellow, orange, red.
           "#ffff00",
           "#ff6000",
-          "#ff0000"      // 
+          "#ff0000"      //
           ],              // Optionally just define one value for solid color gauge.
           levelColorsGradient: false // Sweep through colors, or abruptly shift
         });
 
       });
-    </script> 
+    </script>
 
     <div class="container">
       <div class="panel panel-primary">
@@ -316,6 +316,6 @@
       </div>
       <div class="alert fade in" id="info-alert" hidden data-spy="affix"></div>
     </div>
-           
+
   </body>
 </html>
